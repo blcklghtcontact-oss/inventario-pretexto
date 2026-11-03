@@ -1,6 +1,6 @@
-// Dirección de la aplicación web de Google Apps Script (la base de datos).
-// Se obtiene en: hoja de Google → Extensiones → Apps Script → Implementar → Aplicación web.
-// Termina en /exec. Ver README.md, paso 4.
+// Base de datos del café: hoja de Google "Inventario Café Pretexto (base de datos)".
+// La app se conecta sola; nadie tiene que configurar nada en su teléfono.
 window.PRETEXTO_CONFIG = {
-  SCRIPT_URL: ""
+  SCRIPT_URL: "https://script.google.com/macros/s/AKfycbzmH84QD2EAtfanGNHG2wbjHpbAZfMOpKZ3vtLNpfIUky-aVsRWh-TQDJSBy-p7WXhr/exec",
+  HOJA_URL: "https://docs.google.com/spreadsheets/d/1vgdUGrTGuvAoynlLemJF3TIn75RilxxpdJbEbrYAfew/edit"
 };
