@@ -32,6 +32,7 @@ const DIA_SEMANA = ["","lunes","martes","miércoles","jueves","viernes","sábado
 function onOpen() {
   SpreadsheetApp.getUi().createMenu("Inventario")
     .addItem("1. Configurar (primera vez)", "configurar")
+    .addItem("Rehacer pestaña Análisis", "crearAnalisis")
     .addItem("Cambiar clave del equipo", "cambiarClave")
     .addToUi();
 }
@@ -49,6 +50,8 @@ function configurar() {
     });
   }
   crearResumenes();
+  crearAnalisis();
+  ["Hoja 1", "Sheet1"].forEach(function (n) { const h = SpreadsheetApp.getActive().getSheetByName(n); if (h && h.getLastRow() === 0) SpreadsheetApp.getActive().deleteSheet(h); });
   const props = PropertiesService.getScriptProperties();
   if (!props.getProperty("CLAVE")) {
     const r = ui.prompt("Clave del equipo", "Escribe una clave que el equipo va a usar para entrar a la app (mínimo 4 caracteres):", ui.ButtonSet.OK_CANCEL);
@@ -58,7 +61,7 @@ function configurar() {
     }
     props.setProperty("CLAVE", r.getResponseText().trim());
   }
-  ui.alert("Listo. Ahora publica la app web: Extensiones → Apps Script → Implementar → Nueva implementación → Aplicación web.");
+  ui.alert("Listo. La hoja ya tiene sus pestañas, los productos de la barra y la pestaña Análisis.");
 }
 
 function cambiarClave() {
@@ -239,6 +242,79 @@ function completarMovimiento(m, autor) {
       m.costo = Math.round(m.cantidad * porUnidad * 100) / 100;
     }
   }
+}
+
+/* ---------- pestaña Análisis: tablas y gráficas que se actualizan solas ---------- */
+function crearAnalisis() {
+  const ss = SpreadsheetApp.getActive();
+  let sh = ss.getSheetByName("Análisis");
+  if (!sh) sh = ss.insertSheet("Análisis", 0);
+  sh.getCharts().forEach(function (c) { sh.removeChart(c); });
+  sh.clear();
+  const desde = '"&TEXT(TODAY()-29,"yyyy-mm-dd")&"';
+  const dinero = "$#,##0.00";
+
+  sh.getRange("A1").setValue("Análisis de inventario · Café Pretexto").setFontSize(18).setFontWeight("bold");
+  sh.getRange("A2").setValue("Se actualiza solo con lo que el equipo anota en la app. Dinero de los últimos 30 días; el lunes no se abre.").setFontStyle("italic");
+
+  // Resumen de dinero (últimos 30 días)
+  sh.getRange("A4:B4").setValues([["Últimos 30 días", "Monto"]]).setFontWeight("bold");
+  sh.getRange("A5:A10").setValues([["Vendido (caja)"], ["Compras (lo que llegó)"], ["Insumos usados"], ["Merma (se tiró)"], ["Vendido − insumos"], ["Insumos / venta"]]);
+  sh.getRange("B5").setFormula('=IFERROR(QUERY(Ventas!A:G,"select sum(D) where B >= \'' + desde + '\' label sum(D) \'\'",1),0)');
+  sh.getRange("B6").setFormula('=IFERROR(QUERY(Movimientos!A:N,"select sum(K) where G = \'entrada\' and B >= \'' + desde + '\' label sum(K) \'\'",1),0)');
+  sh.getRange("B7").setFormula('=IFERROR(QUERY(Movimientos!A:N,"select sum(K) where (G = \'salida\' or G = \'merma\') and B >= \'' + desde + '\' label sum(K) \'\'",1),0)');
+  sh.getRange("B8").setFormula('=IFERROR(QUERY(Movimientos!A:N,"select sum(K) where G = \'merma\' and B >= \'' + desde + '\' label sum(K) \'\'",1),0)');
+  sh.getRange("B9").setFormula("=B5-B7");
+  sh.getRange("B10").setFormula('=IF(B5>0,B7/B5,"—")');
+  sh.getRange("B5:B9").setNumberFormat(dinero);
+  sh.getRange("B10").setNumberFormat("0.0%");
+
+  // Dinero por día (30 días)
+  sh.getRange("D4:G4").setValues([["Fecha", "Vendido", "Compras", "Insumos usados"]]).setFontWeight("bold");
+  const filasDia = [];
+  for (let i = 0; i < 30; i++) {
+    const r = 5 + i;
+    filasDia.push([
+      '=TEXT(TODAY()-' + (29 - i) + ',"yyyy-mm-dd")',
+      "=SUMIF(Ventas!$B:$B,$D" + r + ",Ventas!$D:$D)",
+      '=SUMIFS(Movimientos!$K:$K,Movimientos!$B:$B,$D' + r + ',Movimientos!$G:$G,"entrada")',
+      '=SUMIFS(Movimientos!$K:$K,Movimientos!$B:$B,$D' + r + ',Movimientos!$G:$G,"salida")+SUMIFS(Movimientos!$K:$K,Movimientos!$B:$B,$D' + r + ',Movimientos!$G:$G,"merma")'
+    ]);
+  }
+  sh.getRange(5, 4, 30, 4).setFormulas(filasDia);
+  sh.getRange("E5:G34").setNumberFormat(dinero);
+
+  // Consumo por día de la semana (todo el historial)
+  sh.getRange("I4:K4").setValues([["Día", "Insumos usados", "Vendido"]]).setFontWeight("bold");
+  const dias = ["martes", "miércoles", "jueves", "viernes", "sábado", "domingo"];
+  sh.getRange(5, 9, dias.length, 3).setFormulas(dias.map(function (d, i) {
+    const r = 5 + i;
+    return ['="' + d + '"',
+      '=SUMIFS(Movimientos!$K:$K,Movimientos!$D:$D,$I' + r + ',Movimientos!$G:$G,"salida")+SUMIFS(Movimientos!$K:$K,Movimientos!$D:$D,$I' + r + ',Movimientos!$G:$G,"merma")',
+      "=SUMIF(Ventas!$C:$C,$I" + r + ",Ventas!$D:$D)"];
+  }));
+  sh.getRange("J5:K10").setNumberFormat(dinero);
+
+  // Lo que más se gasta (todo el historial)
+  sh.getRange("M4").setFormula('=IFERROR(QUERY(Movimientos!A:N,"select F, sum(K), sum(I), J where (G = \'salida\' or G = \'merma\') group by F, J order by sum(K) desc limit 10 label F \'Producto\', sum(K) \'Costo ($)\', sum(I) \'Cantidad usada\', J \'Unidad\'",1),"Sin consumo anotado")');
+  sh.getRange("N5:N14").setNumberFormat(dinero);
+
+  // Por surtir ahora
+  sh.getRange("R4").setFormula('=IFERROR(QUERY(Productos!A:N,"select B, E, F, D where E < F order by B label B \'Por surtir\', E \'Hay\', F \'Mínimo\', D \'Unidad\'",1),"Todo surtido")');
+
+  // Gráficas
+  const graf = function (tipo, rango, fila, col, titulo) {
+    sh.insertChart(sh.newChart().setChartType(tipo).addRange(sh.getRange(rango)).setPosition(fila, col, 0, 0)
+      .setOption("title", titulo).setOption("legend", { position: "bottom" }).setOption("width", 620).setOption("height", 320).build());
+  };
+  graf(Charts.ChartType.COLUMN, "D4:G34", 37, 1, "Dinero por día (30 días)");
+  graf(Charts.ChartType.COLUMN, "I4:K10", 37, 9, "Por día de la semana");
+  graf(Charts.ChartType.BAR, "M4:N14", 55, 1, "Lo que más se gasta (costo)");
+
+  sh.setFrozenRows(2);
+  sh.setColumnWidth(1, 190);
+  sh.setColumnWidth(13, 220);
+  sh.setColumnWidth(18, 200);
 }
 
 /* ---------- reportes en Google Docs ---------- */

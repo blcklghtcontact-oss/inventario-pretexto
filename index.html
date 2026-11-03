@@ -564,11 +564,10 @@ function vStats(){
   ${lista.length?`<div class="tabla-x"><table class="tabla"><thead><tr><th>Producto</th><th>Usado</th><th>Por día</th><th>Por semana</th><th>Costo</th><th>Llegó</th></tr></thead><tbody>
     ${lista.sort((a,b)=>b.costo-a.costo||b.usado-a.usado).map(a=>`<tr><td>${esc(a.nombre)}</td><td class="num">${fmtCant(r2(a.usado),a.unidad)}</td><td class="num">${fmtCant(r2(a.usado/diasData),a.unidad)}</td><td class="num">${fmtCant(r2(a.usado/diasData*abiertos.length),a.unidad)}</td><td class="num">${a.costo>0?pesos(a.costo):"—"}</td><td class="num">${a.entro>0?fmtCant(r2(a.entro),a.unidad):"—"}</td></tr>`).join("")}
   </tbody></table></div>`:`<p class="nota">Sin movimientos.</p>`}`}
-  <h2>Reportes en Google Docs</h2>
-  <p class="nota">Crea un documento con el dinero, el consumo por producto, lo de cada día y lo que llegó en el periodo elegido arriba.</p>
-  <div class="fila-btn"><button class="btn" data-a="reporte" data-id="${dIni}" ${S.creandoReporte?"disabled":""}>${S.creandoReporte?"Creando el reporte…":"Crear reporte de "+(R===7?"7 días":R===30?"30 días":"3 meses")}</button>${S.hojaUrl?`<a class="btn claro" target="_blank" rel="noopener" href="${esc(S.hojaUrl)}">Ver la hoja de datos</a>`:""}</div>
-  ${(S.reportes||[]).length?`<ul class="lista">${S.reportes.slice(0,12).map(r=>`<li style="align-items:center"><span>${esc(new Date((r.desde||"")+"T12:00").toLocaleDateString("es-MX",{day:"numeric",month:"short"}))} – ${esc(new Date((r.hasta||"")+"T12:00").toLocaleDateString("es-MX",{day:"numeric",month:"short"}))}<br><span class="nota">${r.autor?esc(r.autor)+" · ":""}${new Date(r.ts).toLocaleDateString("es-MX",{day:"numeric",month:"short"})}</span></span><a class="btn chico claro" target="_blank" rel="noopener" href="${esc(r.url)}">Abrir</a></li>`).join("")}</ul>`:`<p class="nota">Aún no hay reportes.</p>`}
-  <p class="nota">El historial completo, día por día, queda en la hoja de Google y cada noche se copia a Obsidian.</p>`;
+  <h2>Análisis completo</h2>
+  <p class="nota">Todo lo que se anota se guarda solo en la hoja del café. Su primera pestaña, <b>Análisis</b>, tiene el resumen de dinero, el dinero por día, el consumo por día de la semana, lo que más se gasta y lo que falta surtir, con gráficas que se actualizan solas. Se puede editar.</p>
+  ${S.hojaUrl?`<div class="fila-btn"><a class="btn" target="_blank" rel="noopener" href="${esc(S.hojaUrl)}">Abrir el análisis</a></div>`:""}
+  <p class="nota">El historial completo, día por día, también se copia cada noche a Obsidian.</p>`;
 }
 
 function granTotal(lista){
@@ -937,7 +936,7 @@ const CONF=window.PRETEXTO_CONFIG||{};
 const LS={get(k){try{return localStorage.getItem(k)}catch(_){return null}},set(k,v){try{v===null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(_){}}};
 S.nombres=new Proxy({},{get:(t,k)=>typeof k==="string"?k:undefined});
 const COLS=["productos","proveedores","recordatorios","movimientos","ventas","config","reportes"];
-const urlBD=()=>CONF.SCRIPT_URL||LS.get("pretexto-url")||"";
+const urlBD=()=>CONF.SCRIPT_URL||"";
 const datos={};COLS.forEach(c=>datos[c]=new Map());
 const subs=[];let cargado=false,pendientes=0,cola=Promise.resolve(),ultimaCarga=0,errorSync=null;
 const nuevoId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
@@ -972,26 +971,13 @@ function guardarCache(){try{const o={};COLS.forEach(c=>o[c]=[...datos[c].values(
 function leerCache(){try{const o=JSON.parse(localStorage.getItem("pretexto-cache")||"null");if(!o)return false;COLS.forEach(c=>datos[c]=new Map((o[c]||[]).map(d=>[String(d.id),d])));return true}catch(_){return false}}
 async function cargar(silencioso){if(pendientes)return;
   try{const j=await llamar({accion:"leer",desde:Date.now()-400*864e5});if(pendientes)return;
-    COLS.forEach(c=>{datos[c]=new Map((j.datos[c]||[]).map(d=>[String(d.id),d]))});if(j.hoja){S.hojaUrl=j.hoja;LS.set("pretexto-hoja",j.hoja)}cargado=true;ultimaCarga=Date.now();errorSync=null;guardarCache();COLS.forEach(notificar)}
+    COLS.forEach(c=>{datos[c]=new Map((j.datos[c]||[]).map(d=>[String(d.id),d]))});if(j.hoja&&!CONF.HOJA_URL){S.hojaUrl=j.hoja;LS.set("pretexto-hoja",j.hoja)}cargado=true;ultimaCarga=Date.now();errorSync=null;guardarCache();COLS.forEach(notificar)}
   catch(e){errorSync=e.code==="sin_configurar"?"falta configurar la hoja":"sin conexión";if(!cargado&&!silencioso){S.listo=true;pintar()}}
   estadoSync()}
 
 /* ---- pantallas de entrada ---- */
-function pantallaSinConfigurar(msg){S.bloqueo=true;$("hoja").innerHTML=`<h1 class="t">Conectar la base de datos</h1><p class="sub">Se hace una sola vez en cada teléfono.</p>
-  <form id="fBD" class="entrada">
-    <div class="campo"><label for="bdUrl">Dirección de la base de datos (termina en /exec)</label><input id="bdUrl" type="url" inputmode="url" placeholder="https://script.google.com/macros/s/…/exec" value="${esc(LS.get("pretexto-url")||"")}"></div>
-    <div class="err" id="bdErr">${esc(msg||"")}</div>
-    <div class="pie"><span class="nota">Te la pasa quien administra la hoja de Google del café.</span><button class="btn" type="submit" id="bdOk">Conectar</button></div>
-  </form>`;
-  $("fBD").addEventListener("submit",async e=>{e.preventDefault();const u=$("bdUrl").value.trim();
-    if(!/^https:\/\/script\.google\.com\/.+\/exec$/.test(u)){$("bdErr").textContent="La dirección debe empezar con https://script.google.com/ y terminar en /exec.";return}
-    $("bdOk").disabled=true;$("bdErr").textContent="Probando…";
-    try{const r=await fetch(u,{method:"POST",body:JSON.stringify({accion:"leer",clave:""})});const j=await r.json();
-      if(j.code==="clave"||j.ok){LS.set("pretexto-url",u);pantallaEntrada()}
-      else if(j.code==="sin_configurar"){$("bdOk").disabled=false;$("bdErr").textContent="La hoja existe pero falta correr Inventario → Configurar."}
-      else{$("bdOk").disabled=false;$("bdErr").textContent="Esa dirección no respondió como la base de datos del café."}}
-    catch(x){$("bdOk").disabled=false;$("bdErr").textContent="No se pudo conectar. Revisa la dirección y el internet."}});
-}
+function pantallaSinConfigurar(){S.bloqueo=true;$("hoja").innerHTML=`<h1 class="t">Inventario</h1><p class="sub">Estamos terminando de preparar la base de datos del café.</p>
+  <div class="vacio"><b>En unos minutos queda lista</b>Vuelve a abrir la app más tarde; no tienes que configurar nada.</div>`}
 function pantallaEntrada(msg){S.bloqueo=true;
   $("hoja").innerHTML=`<h1 class="t">Bienvenido</h1><p class="sub">Inventario de barra de Café Pretexto</p>
   <form id="fEntrada" class="entrada" autocomplete="on">
@@ -1022,7 +1008,7 @@ function suscribir(){
 }
 function arrancar(){
   if(!urlBD()){pantallaSinConfigurar();return}
-  S.hojaUrl=LS.get("pretexto-hoja")||"";
+  S.hojaUrl=CONF.HOJA_URL||LS.get("pretexto-hoja")||"";
   if(!LS.get("pretexto-clave")||!LS.get("pretexto-nombre")){pantallaEntrada();return}
   S.bloqueo=false;S.db=DB;S.uid=LS.get("pretexto-nombre");S.puede=true;
   if(leerCache())cargado=true;
