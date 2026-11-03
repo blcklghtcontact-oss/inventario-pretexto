@@ -10,6 +10,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Inventario">
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800&display=swap">
 <link rel="icon" href="icono-192.png">
 <link rel="apple-touch-icon" href="icono-192.png">
 <style>
@@ -254,6 +256,126 @@ label.chk input:checked{background:var(--salvia);border-color:var(--oliva2)}
 form.entrada{display:flex;flex-direction:column;gap:14px;max-width:420px}
 code{font-family:ui-monospace,Menlo,monospace;font-size:.9em;background:var(--papel2);padding:0 4px;border-radius:4px}
 .aviso{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(90px + env(safe-area-inset-bottom,0px));background:var(--oliva);color:var(--crema);padding:8px 16px;border-radius:999px;z-index:40;font-size:16px;box-shadow:var(--sombra);white-space:nowrap}
+/* ===== íconos y ajustes (ambos estilos) ===== */
+.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.cat-ico{display:none}
+.pestana .ic{display:none}
+.quien{display:none!important}
+.ajustes-btn{border:1px solid rgba(233,227,210,.35);background:transparent;color:#e9e3d2;border-radius:999px;width:40px;height:40px;display:grid;place-items:center;padding:0}
+.cab-n{display:flex;align-items:center;gap:10px;min-width:0}
+.aj-cab{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.aj-t{font-size:14px;color:var(--lapiz2);font-style:italic;margin-bottom:6px}
+.aj-busc{margin:0}
+.aj-busc input{border:0!important;background:transparent!important;padding:6px 0!important}
+.estilos{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.est{border:2px solid var(--salvia);background:var(--papel);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:2px;align-items:flex-start;text-align:left;color:var(--lapiz)}
+.est.on{border-color:var(--oliva);box-shadow:0 0 0 2px var(--oliva) inset}
+.prev{width:100%;height:58px;border-radius:8px;margin-bottom:6px;display:flex;flex-direction:column;gap:5px;padding:7px;overflow:hidden}
+.prev i{display:block;height:9px;border-radius:3px}
+.prev-lib{background:#f6f2e6;background-image:repeating-linear-gradient(180deg,transparent 0,transparent 10px,#cfd8c3 10px,#cfd8c3 11px);border-left:3px solid #d9b98a}
+.prev-lib i{background:#3b5236;width:60%;opacity:.7}.prev-lib i+i{width:80%;background:#6b6a60;opacity:.4}
+.prev-mod{background:#F3F5F0}
+.prev-mod i{background:#fff;height:12px;border-radius:5px;box-shadow:0 1px 3px rgba(0,0,0,.12)}.prev-mod i:first-child{background:#2F6B3F;width:45%}
+.aj-lista{display:flex;flex-direction:column;border-top:1px solid var(--salvia)}
+.aj-i{display:flex;align-items:center;gap:12px;padding:12px 2px;border:0;border-bottom:1px solid var(--salvia);background:none;text-align:left;color:var(--lapiz);text-decoration:none;font:inherit}
+.aj-i>span{display:flex;flex-direction:column}
+.aj-i .ic{color:var(--oliva)}
+.res-busq{display:flex;flex-direction:column;gap:6px;max-height:40vh;overflow-y:auto}
+.res-i{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:10px;align-items:center;text-align:left;border:1px solid var(--salvia);background:var(--papel2);border-radius:12px;padding:8px 10px;color:var(--lapiz);text-decoration:none;font:inherit}
+.res-i .res-t{grid-row:span 2;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--oliva2);font-weight:700}
+.guia{padding-left:20px;margin:0;display:flex;flex-direction:column;gap:8px;font-size:16px}
+
+/* ===== estilo Moderno (tipo app de comida) ===== */
+body.moderno{--papel:#ffffff;--papel2:#F3F5F0;--linea:#E6E9E2;--margen:transparent;--oliva:#2F6B3F;--oliva2:#3E7A4D;--romero:#9AA394;--salvia:#E3E7DE;--salvia2:#EEF1EA;--oro:#F2A93B;--oro2:#C47A0A;--lapiz:#1E2420;--lapiz2:#6B736C;--rojo:#D9452F;--crema:#ffffff;--postit:#FFF4DC;--postit2:#EAF4EC;--wa:#25A35A;
+  --mano:"Nunito",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--titulo:"Nunito",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--sombra:0 2px 12px rgba(30,36,32,.07);
+  background:#F3F5F0;background-image:none;font-size:16px}
+.moderno .top{color:var(--lapiz)}
+.moderno .marca b{font-weight:800;font-size:22px}
+.moderno .marca i{font-style:normal;color:var(--lapiz2)}
+.moderno .sync{color:var(--lapiz2)}
+.moderno .ajustes-btn{background:#fff;color:var(--lapiz);border:0;box-shadow:var(--sombra)}
+.moderno .hoja{background:transparent;background-image:none;box-shadow:none;padding:2px 0 24px;border-radius:0;min-height:0}
+.moderno h1.t{font-size:28px;font-weight:800;color:var(--lapiz)}
+.moderno .sub{font-style:normal}
+.moderno h2{border-bottom:0;font-size:18px;font-weight:800;color:var(--lapiz);margin:22px 0 8px}
+.moderno h2 small{font-weight:600}
+.moderno .nota{font-style:normal}
+.moderno .cuenta{gap:8px;margin:6px 0 10px}
+.moderno .cuenta>span{background:#fff;border-radius:14px;padding:8px 12px;box-shadow:var(--sombra);font-size:13px;display:flex;flex-direction:column;line-height:1.15}
+.moderno .cuenta b{font-size:20px;font-weight:800}
+.moderno .buscar{background:#fff;border:0;border-radius:16px;box-shadow:var(--sombra);padding:6px 14px}
+.moderno .filtros{gap:8px;padding:8px 0 4px}
+.moderno .filtro{border:0;background:#fff;color:var(--lapiz);box-shadow:var(--sombra);padding:8px 14px;font-weight:700;font-size:14px}
+.moderno .filtro[aria-pressed="true"]{background:var(--lapiz);color:#fff}
+.moderno .item{grid-template-columns:auto minmax(0,1fr) auto;background:#fff;border:0;border-radius:18px;padding:12px;margin:0 0 10px;box-shadow:var(--sombra)}
+.moderno .cat-ico{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;flex:none}
+.moderno .cat-cafe{background:#F6EADF;color:#8A5A2B}
+.moderno .cat-lacteos{background:#E8F1FB;color:#2F6DA8}
+.moderno .cat-jarabes{background:#FDEBE4;color:#C9512E}
+.moderno .cat-tes{background:#E7F3E9;color:#2F6B3F}
+.moderno .cat-otros{background:#EFEEF6;color:#5D5A7A}
+.moderno .nom{font-weight:800;font-size:16.5px}
+.moderno .det{font-size:13.5px}
+.moderno .precio{color:var(--oliva);font-weight:800}
+.moderno .sinprecio{text-decoration:none;color:var(--oro2);font-weight:700;font-style:normal}
+.moderno .sello{transform:none!important;border:0;border-radius:999px;padding:2px 9px;background:#FDE7E3;color:#B23A27;letter-spacing:.02em;font-size:11px}
+.moderno .sello.oro{background:#FFF1D6;color:#A86A00}
+.moderno .sello.gris{background:#EEF0EC;color:var(--lapiz2)}
+.moderno .circ{border:0;background:var(--oliva);color:#fff;width:38px;height:38px;font-size:20px;box-shadow:0 3px 8px rgba(47,107,63,.28)}
+.moderno .circ[data-t="salida"],.moderno .circ[data-a="menos"],.moderno .circ[data-a="cMenos"]{background:#EEF1EA;color:var(--oliva);box-shadow:none}
+.moderno .cant b{font-size:20px;font-weight:800}
+.moderno .contar{border:0;background:#FFF1D6;color:#A86A00;font-weight:800;border-radius:999px;padding:8px 14px}
+.moderno .btn{border-radius:999px;padding:10px 18px;font-weight:800;border-width:0;box-shadow:0 3px 10px rgba(47,107,63,.22)}
+.moderno .btn.claro{background:#fff;color:var(--oliva);box-shadow:var(--sombra)}
+.moderno .btn.rojo{background:#FDE7E3;color:var(--rojo);box-shadow:none}
+.moderno .btn.oro{background:var(--oro);color:#fff}
+.moderno .btn.chico{padding:6px 12px}
+.moderno .postit{transform:none!important;border-radius:18px;box-shadow:var(--sombra);background:var(--postit)}
+.moderno .postit:nth-child(2n){background:var(--postit2)}
+.moderno .postit .eti{font-weight:800;color:#A86A00}
+.moderno .uso,.moderno .reg,.moderno .conteo,.moderno .ped,.moderno .prov,.moderno .dia,.moderno .vacio{background:#fff;border:0;border-radius:18px;padding:12px 14px;margin-bottom:10px;box-shadow:var(--sombra)}
+.moderno .uso .cab b,.moderno .reg .cab b,.moderno .conteo .cab b{font-weight:800}
+.moderno .vacio{font-style:normal}
+.moderno .chipuso{border:0;background:#EEF1EA;color:var(--oliva);font-weight:800;min-height:40px;padding:6px 14px}
+.moderno .chipuso.on,.moderno .chipuso:active{background:var(--oliva);color:#fff}
+.moderno .chipuso.oro{background:#FFF1D6;color:#A86A00}
+.moderno .chipuso.rojo{background:#FDE7E3;color:#B23A27}
+.moderno .kpis{background:transparent;border:0;gap:10px;overflow:visible}
+.moderno .kpis div{border-radius:16px;box-shadow:var(--sombra)}
+.moderno .kpis b{font-weight:800}
+.moderno .caja-dia,.moderno .total-top,.moderno .barra-conteo{border:0;background:#fff;border-radius:18px;box-shadow:var(--sombra)}
+.moderno .gran-total{border:0;background:var(--oliva);color:#fff;border-radius:20px;box-shadow:0 6px 18px rgba(47,107,63,.3)}
+.moderno .gran-total .cab span,.moderno .gran-total .cab b,.moderno .gran-total .nota,.moderno .gran-total li{color:#fff}
+.moderno .gran-total ul.lista li .pts{border-bottom-color:rgba(255,255,255,.35)}
+.moderno .graf{background:#fff;border-radius:18px;padding:10px;box-shadow:var(--sombra)}
+.moderno .tabla-x{background:#fff;border-radius:18px;padding:6px;box-shadow:var(--sombra)}
+.moderno .hb{background:#fff;border-radius:18px;padding:12px;box-shadow:var(--sombra)}
+.moderno .dmini span{border:0;background:#EEF1EA;border-radius:999px;padding:0 8px}
+.moderno .dmini span.hoy{background:var(--oro);color:#fff}
+.moderno .pestanas{background:#fff;box-shadow:0 -4px 20px rgba(0,0,0,.08);padding-top:6px;gap:0;border-radius:22px 22px 0 0}
+.moderno .pestana{background:none!important;color:#8A928B;box-shadow:none;margin-top:0;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:var(--mano);font-weight:700;font-size:11px;padding:4px 0 6px;max-width:none}
+.moderno .pestana .ic{display:block;width:22px;height:22px;padding:4px 14px;box-sizing:content-box;border-radius:999px;transition:background .2s}
+.moderno .pestana[aria-current="page"]{transform:none;outline:0;color:var(--oliva)}
+.moderno .pestana[aria-current="page"] .ic{background:#E5F0E6}
+.moderno .pestana .dot{top:0;right:calc(50% - 26px)}
+.moderno .panel{background:#fff;border-radius:26px 26px 0 0}
+@media (min-width:700px){.moderno .panel{border-radius:22px}}
+.moderno .panel h3{font-weight:800;color:var(--lapiz)}
+.moderno .campo label{font-style:normal;font-weight:700}
+.moderno .campo input,.moderno .campo select,.moderno .campo textarea{border:0;background:#F3F5F0;border-radius:12px;padding:10px 12px}
+.moderno .exacto input{border:0;background:#F3F5F0;border-radius:10px;padding:6px 8px}
+.moderno .tipo button,.moderno .selDias button,.moderno .unid button{border:0;background:#F3F5F0;color:var(--lapiz);font-weight:700}
+.moderno .tipo button[aria-pressed="true"],.moderno .selDias button[aria-pressed="true"],.moderno .unid button[aria-pressed="true"]{background:var(--oliva);color:#fff}
+.moderno fieldset.caja{border:0;background:#F7F8F5;border-radius:16px}
+.moderno .aviso{border-radius:14px;background:var(--lapiz)}
+.moderno .res-i{background:#F7F8F5;border:0}
+.moderno .est{border-color:#E3E7DE}
+.moderno .aj-t{font-style:normal;font-weight:700}
+.moderno .item,.moderno .uso,.moderno .ped,.moderno .conteo,.moderno .prov{animation:entra .25s ease-out both}
+@keyframes entra{from{transform:translateY(6px)}}
+.moderno button,.moderno .btn,.moderno .pestana{transition:transform .12s ease,background .2s,color .2s}
+.moderno button:active,.moderno .btn:active,.moderno .pestana:active{transform:scale(.95)}
+@media (prefers-reduced-motion:reduce){.moderno *{animation:none!important;transition:none!important}}
 </style>
 <script src="config.js"></script>
 </head>
@@ -263,17 +385,18 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:.9em;background:var(--pa
   <div class="marca"><b>Café Pretexto</b><i>Inventario de barra</i></div>
   <span class="sync" id="sync"><i></i><span>conectando…</span></span>
   <button class="quien" id="quien" data-a="quien" hidden></button>
+  <button class="ajustes-btn" data-a="ajustes" aria-label="Ajustes" title="Ajustes"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg></button>
 </header>
 
 <main class="hoja" id="hoja"></main>
 
 <nav class="pestanas" aria-label="Secciones">
-  <a class="pestana p1" href="#libreta" data-v="libreta">Libreta</a>
-  <a class="pestana p5" href="#dia" data-v="dia">Del día</a>
-  <a class="pestana p3" href="#conteo" data-v="conteo">Conteo<span class="dot" id="dotConteo" hidden></span></a>
-  <a class="pestana p2" href="#pedir" data-v="pedir">Pedir<span class="dot" id="dotPedir" hidden></span></a>
-  <a class="pestana p6" href="#graficas" data-v="graficas">Gráficas</a>
-  <a class="pestana p4" href="#avisos" data-v="avisos">Avisos<span class="dot" id="dotAvisos" hidden></span></a>
+  <a class="pestana p1" href="#libreta" data-v="libreta"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8a2 2 0 0 1 2 2v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V6a2 2 0 0 1 2-2z"/><path d="M9 9h6M9 13h6M9 17h3"/></svg>Libreta</a>
+  <a class="pestana p5" href="#dia" data-v="dia"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4"/></svg>Del día</a>
+  <a class="pestana p3" href="#conteo" data-v="conteo"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><path d="m3.5 6 1.5 1.5L7.5 5M3.5 12l1.5 1.5L7.5 11M3.5 18l1.5 1.5L7.5 17"/></svg>Conteo<span class="dot" id="dotConteo" hidden></span></a>
+  <a class="pestana p2" href="#pedir" data-v="pedir"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.2 10.4a1.5 1.5 0 0 0 1.5 1.1h8.6a1.5 1.5 0 0 0 1.5-1.2L20.5 8H6.2"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="17" cy="19.5" r="1.3"/></svg>Pedir<span class="dot" id="dotPedir" hidden></span></a>
+  <a class="pestana p6" href="#graficas" data-v="graficas"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Gráficas</a>
+  <a class="pestana p4" href="#avisos" data-v="avisos"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>Avisos<span class="dot" id="dotAvisos" hidden></span></a>
 </nav>
 <div id="capa"></div>
 <div class="aviso" id="aviso" hidden></div>
@@ -388,7 +511,7 @@ function vDia(){
   <label class="buscar"><span aria-hidden="true">⌕</span><input id="qd" type="search" placeholder="¿Qué se usó? leche, pulpa…" value="${esc(S.qd||"")}" autocomplete="off" aria-label="Buscar producto"></label>
   ${lista.map(p=>{const st=n(p.stock),d=desglose(p);
     if(st===null)return `<div class="uso"><div class="cab"><b>${esc(p.nombre)}</b><a class="sinprecio" href="#conteo">primero cuéntalo</a></div></div>`;
-    return `<div class="uso ${st<=0?"vacio0":""}"><div class="cab"><b>${esc(p.nombre)}</b><span class="hay num">hay ${fmtCant(st,p.unidad)}</span></div>
+    return `<div class="uso ${st<=0?"vacio0":""}"><div class="cab"><span class="cab-n">${icoCat(p.categoria)}<b>${esc(p.nombre)}</b></span><span class="hay num">hay ${fmtCant(st,p.unidad)}</span></div>
     ${d?`<div class="nota">${desgloseTxt(p)}</div>`:""}
     ${st>0?`<div class="chips">${chipsUso(p).map(([v,l])=>`<button class="chipuso" data-a="usar" data-id="${p.id}" data-cant="${v}">− ${l}</button>`).join("")}
       ${d&&d.ab>0&&d.cerr>0?`<button class="chipuso oro" data-a="acaboEnvase" data-id="${p.id}">Se acabó el ${esc(d.pr.u)} abierto</button>`:""}
@@ -420,7 +543,7 @@ function filaConteo(p){
       ${sub?`<span class="unid mini"><button type="button" data-a="cUni" data-id="${p.id}" data-u="base" aria-pressed="${S.cUni[p.id]!=="sub"}">${esc(p.unidad)}</button><button type="button" data-a="cUni" data-id="${p.id}" data-u="sub" aria-pressed="${S.cUni[p.id]==="sub"}">${sub[0]}</button></span>`:esc(p.unidad)}</span></div>
     ${["L","kg"].includes(p.unidad)?`<p class="nota" style="margin:0">Para contar por envase y porcentaje, pon en el producto cómo se compra (galón, bote…).</p>`:""}`}
   const t=totalConteo(p);
-  return `<div class="conteo ${hecho?"hecho":""}" id="cRow-${p.id}"><div class="cab"><b>${esc(p.nombre)}</b><span class="nota">${st===null?"sin contar antes":"antes "+fmtCant(st,p.unidad)}</span></div>
+  return `<div class="conteo ${hecho?"hecho":""}" id="cRow-${p.id}"><div class="cab"><span class="cab-n">${icoCat(p.categoria)}<b>${esc(p.nombre)}</b></span><span class="nota">${st===null?"sin contar antes":"antes "+fmtCant(st,p.unidad)}</span></div>
     ${pr?`<div class="nota">1 ${esc(pr.u)} = ${fmtCant(pr.c,p.unidad)}</div>`:""}
     ${cuerpo}
     <div class="res" id="cRes-${p.id}">${t===null?"":`Total: <b class="num">${fmtCant(t,p.unidad)}</b>${st!==null&&t!==st?` <span class="num">(${t>st?"+":"−"}${fmtCant(Math.abs(r2(t-st)),p.unidad)})</span>`:""}`}</div></div>`;
@@ -577,6 +700,82 @@ function granTotal(lista){
    <ul class="lista">${Object.entries(porProv).map(([k,v])=>`<li><span>${esc(k)}</span><span class="pts"></span><span class="num">${pesos(v)}</span></li>`).join("")}</ul>
    <p class="nota" style="margin:0">${lista.filter(p=>aPedir(p)>0).length} productos.${sinPrecio?` Faltan precios de ${sinPrecio} ${sinPrecio===1?"producto":"productos"}; no están sumados.`:" Es lo que se necesita tener listo para pagar."}</p></div>`}
 
+/* ---- estilo visual y ajustes ---- */
+const ICO={
+  libreta:'<path d="M8 4h8a2 2 0 0 1 2 2v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V6a2 2 0 0 1 2-2z"/><path d="M9 9h6M9 13h6M9 17h3"/>',
+  dia:'<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4"/>',
+  conteo:'<path d="M9 6h11M9 12h11M9 18h11"/><path d="m3.5 6 1.5 1.5L7.5 5M3.5 12l1.5 1.5L7.5 11M3.5 18l1.5 1.5L7.5 17"/>',
+  pedir:'<path d="M3 4h2l2.2 10.4a1.5 1.5 0 0 0 1.5 1.1h8.6a1.5 1.5 0 0 0 1.5-1.2L20.5 8H6.2"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="17" cy="19.5" r="1.3"/>',
+  graficas:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  avisos:'<path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/>',
+  ajustes:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/>',
+  buscar:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+  cafe:'<path d="M4 9h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16M8 3c0 1.5 1 1.5 1 3M12 3c0 1.5 1 1.5 1 3"/>',
+  lacteos:'<path d="M8 3h8v3l2 3v11a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V9l2-3z"/><path d="M6 12h12"/>',
+  jarabes:'<path d="M10 2h4v4l2 3v11a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V9l2-3z"/><path d="M8 13h8"/>',
+  tes:'<path d="M5 19c0-8 5-13 14-14-1 9-6 14-14 14z"/><path d="M5 19 13 11"/>',
+  otros:'<path d="M3 8 12 3l9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/>',
+  hoja:'<path d="M6 3h9l4 4v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M8 11h8M8 15h8M12 11v8"/>',
+  usuario:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>',
+  ayuda:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17.5v.1"/>'
+};
+const svg=(k,c="")=>`<svg class="ic ${c}" viewBox="0 0 24 24" aria-hidden="true">${ICO[k]||""}</svg>`;
+const CAT_ICO={"Café":"cafe","Lácteos y cremas":"lacteos","Jarabes y pulpas":"jarabes","Tés y polvos":"tes","Otros":"otros"};
+const icoCat=c=>`<span class="cat-ico cat-${CAT_ICO[c]||"otros"}" aria-hidden="true">${svg(CAT_ICO[c]||"otros")}</span>`;
+
+function aplicarEstilo(e){document.body.classList.toggle("moderno",e==="moderno");
+  const m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("content",e==="moderno"?"#ffffff":"#2f2a22")}
+aplicarEstilo(LS0("pretexto-estilo")||"libreta");
+function LS0(k){try{return localStorage.getItem(k)}catch(_){return null}}
+
+function buscarTodo(q){q=q.trim().toLowerCase();if(!q)return[];const r=[];
+  S.prods.forEach(p=>{if((p.nombre+" "+(p.categoria||"")).toLowerCase().includes(q))r.push({t:"Producto",n:p.nombre,d:n(p.stock)===null?"sin contar":"hay "+fmtCant(n(p.stock),p.unidad),a:"editar",id:p.id})});
+  S.provs.forEach(v=>{if((v.nombre+" "+(v.contacto||"")+" "+(v.telefono||"")).toLowerCase().includes(q))r.push({t:"Proveedor",n:v.nombre,d:v.telefono?telBonito(v.telefono):"sin número",a:"editProv",id:v.id})});
+  S.recs.forEach(x=>{if((x.texto||"").toLowerCase().includes(q))r.push({t:"Recordatorio",n:x.texto,d:x.fecha||"",a:"editRec",id:x.id})});
+  [["libreta","Libreta","Existencias y precios"],["dia","Del día","Anotar lo que se usa y la venta"],["conteo","Conteo","Contar envases"],["pedir","Pedir","Pedidos y WhatsApp"],["proveedores","Proveedores","Números y días de pedido"],["graficas","Gráficas","Dinero y consumo"],["avisos","Avisos","Semana de pedidos y recordatorios"]]
+    .forEach(([h,nm,d])=>{if((nm+" "+d).toLowerCase().includes(q))r.push({t:"Sección",n:nm,d,h})});
+  return r.slice(0,12)}
+function resultadosHTML(q){const r=buscarTodo(q);if(!q.trim())return`<p class="nota">Escribe el nombre de un producto, un proveedor, un recordatorio o una sección.</p>`;
+  if(!r.length)return`<p class="nota">No encontré nada con “${esc(q)}”.</p>`;
+  return `<div class="res-busq">${r.map(x=>x.h?`<a class="res-i" href="#${x.h}" data-a="cerrarAj"><span class="res-t">${x.t}</span><b>${esc(x.n)}</b><span class="nota">${esc(x.d)}</span></a>`:`<button class="res-i" data-a="${x.a}" data-id="${x.id}"><span class="res-t">${x.t}</span><b>${esc(x.n)}</b><span class="nota">${esc(x.d)}</span></button>`).join("")}</div>`}
+
+function pAjustes(){
+  const est=LS0("pretexto-estilo")||"libreta";
+  panel(`<div class="aj-cab"><h3>Ajustes</h3><span class="nota">${S.uid?"Hola, "+esc(S.uid):""}</span></div>
+   <div class="campo"><label for="ajQ">Buscar en todo</label><div class="buscar aj-busc">${svg("buscar")}<input id="ajQ" type="search" placeholder="Pulpa, proveedor, recordatorio…" autocomplete="off"></div></div>
+   <div id="ajRes">${resultadosHTML("")}</div>
+   <div><div class="aj-t">Estilo de la app</div>
+   <div class="estilos">
+     <button class="est ${est==="libreta"?"on":""}" data-a="estilo" data-id="libreta" aria-pressed="${est==="libreta"}"><span class="prev prev-lib"><i></i><i></i><i></i></span><b>Libreta</b><span class="nota">Como el recetario</span></button>
+     <button class="est ${est==="moderno"?"on":""}" data-a="estilo" data-id="moderno" aria-pressed="${est==="moderno"}"><span class="prev prev-mod"><i></i><i></i><i></i></span><b>Moderno</b><span class="nota">Tarjetas e íconos</span></button>
+   </div><p class="nota" style="margin:4px 0 0">Se guarda solo en este teléfono.</p></div>
+   <div class="aj-lista">
+     ${S.hojaUrl?`<a class="aj-i" target="_blank" rel="noopener" href="${esc(S.hojaUrl)}">${svg("hoja")}<span><b>Abrir el análisis completo</b><span class="nota">La hoja de Google con todo</span></span></a>`:""}
+     <a class="aj-i" href="#proveedores" data-a="cerrarAj">${svg("pedir")}<span><b>Proveedores</b><span class="nota">WhatsApp y días de pedido</span></span></a>
+     <button class="aj-i" data-a="ayuda">${svg("ayuda")}<span><b>¿Cómo se usa?</b><span class="nota">Guía rápida</span></span></button>
+     <button class="aj-i" data-a="salirAj">${svg("usuario")}<span><b>Cambiar de usuario</b><span class="nota">${S.uid?"Ahora: "+esc(S.uid):""}</span></span></button>
+   </div>
+   <p class="nota" id="ajSync">${pendientes?"Guardando cambios…":errorSync?"Sin conexión: "+esc(errorSync):cargado?"Todo guardado en la hoja del café · actualizado "+new Date(ultimaCarga||Date.now()).toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}):""}</p>
+   <div class="pie"><span></span><button class="btn" id="ajX">Cerrar</button></div>`,()=>{
+    $("ajX").onclick=cerrar;
+    $("ajQ").addEventListener("input",e=>{$("ajRes").innerHTML=resultadosHTML(e.target.value)});
+  },"ajQ");
+}
+function pAyuda(){
+  panel(`<h3>¿Cómo se usa?</h3>
+   <ol class="guia">
+     <li><b>Conteo</b>: cuenta lo que hay. Envases sin abrir y cuánto queda en el que está en uso.</li>
+     <li><b>Libreta</b>: toca un producto para ponerle precio, mínimo, cómo se compra y su proveedor.</li>
+     <li><b>Del día</b>: quita lo que se usa (− 250 ml, − 1 L, “se acabó”) y anota la venta de caja.</li>
+     <li><b>+</b> en la Libreta: anota lo que llegó.</li>
+     <li><b>Pedir</b>: ve lo que falta, ajusta cantidades y manda el pedido por WhatsApp.</li>
+     <li><b>Gráficas</b>: dinero, consumo y lo que más se gasta.</li>
+     <li><b>Avisos</b>: qué toca pedir cada día y recordatorios con alarma.</li>
+   </ol>
+   <p class="nota">El café abre de martes a domingo. Todo se guarda solo en la hoja de Google del café.</p>
+   <div class="pie"><button class="btn claro" data-a="ajustes">Volver a Ajustes</button><button class="btn" id="ayX">Listo</button></div>`,()=>{$("ayX").onclick=cerrar});
+}
+
 /* ---- vistas ---- */
 function vista(){const h=location.hash.slice(1);S.vista=["libreta","dia","conteo","pedir","graficas","proveedores","avisos"].includes(h)?h:"libreta";const tab=S.vista==="proveedores"?"pedir":S.vista;
   document.querySelectorAll(".pestana").forEach(a=>a.dataset.v===tab?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"));pintar();window.scrollTo(0,0)}
@@ -634,7 +833,7 @@ function fila(p){
   const e=estado(p),pv=prov(p.proveedorId),st=n(p.stock),pr=pres(p),rt=ritmo(p);
   const sello=e==="agotado"?`<span class="sello">Agotado</span>`:e==="bajo"?`<span class="sello oro">Por surtir</span>`:e==="contar"?`<span class="sello gris">Sin contar</span>`:"";
   const precio=n(p.precio)>0?`<span class="precio num">${pesos(p.precio)} / ${esc(pr?pr.u:p.unidad)}${pr?` · ${pesos(r2(p.precio/pr.c))}/${esc(p.unidad)}`:""}</span>`:(S.puede?`<button class="sinprecio" data-a="editar" data-id="${p.id}" data-foco="pPrecio">poner precio</button>`:`<span>sin precio</span>`);
-  return `<div class="item"><div><button class="nom" data-a="editar" data-id="${p.id}">${esc(p.nombre)} ${sello}</button>
+  return `<div class="item">${icoCat(p.categoria)}<div><button class="nom" data-a="editar" data-id="${p.id}">${esc(p.nombre)} ${sello}</button>
     <div class="det">${precio}${pr?`<span>1 ${esc(pr.u)} = ${fmt(pr.c)} ${esc(p.unidad)}</span>`:""}${n(p.minimo)!==null?`<span>mín. <span class="num">${fmt(p.minimo)}</span> ${esc(p.unidad)}</span>`:""}${pv?`<span>· ${esc(pv.nombre)}</span>`:""}</div>
     ${desglose(p)?`<div class="det"><span>${esc(desgloseTxt(p))}</span></div>`:""}<div class="det">${miniDias(p)}${rt?`<span class="ritmo ${rt.limite<=1?"urge":""}">${rt.limite<=0?"pídelo ya":rt.limite<=1?"pídelo mañana a más tardar":`dura ~${rt.dura} días`}</span>`:""}</div></div>
     <div class="paso">${st===null?(S.puede?`<button class="contar" data-a="editar" data-id="${p.id}" data-foco="pStock">Contar</button>`:`<span class="nota">sin contar</span>`):
@@ -884,6 +1083,11 @@ document.addEventListener("click",async e=>{
   const b=e.target.closest("[data-a],[data-cat]");if(!b)return;
   if(b.dataset.cat){S.cat=b.dataset.cat;pintar();return}
   const a=b.dataset.a,id=b.dataset.id;
+  if(a==="ajustes"){pAjustes();return}
+  if(a==="ayuda"){pAyuda();return}
+  if(a==="cerrarAj"){cerrar();return}
+  if(a==="salirAj"){cerrar();cambiarUsuario();return}
+  if(a==="estilo"){try{localStorage.setItem("pretexto-estilo",id)}catch(_){}aplicarEstilo(id);pAjustes();pintar();aviso(id==="moderno"?"Estilo moderno activado":"Estilo libreta activado");return}
   if(a==="rango"){S.rango=Number(id);pintar();return}
   if(a==="reporte"){S.creandoReporte=true;pintar();
     try{const j=await escribir({accion:"reporte",desde:id,hasta:hoyISO()});datos.reportes.set(j.doc.id,j.doc);notificar("reportes");guardarCache();aviso("Reporte creado");S.ultimoReporte=j.doc.url}
