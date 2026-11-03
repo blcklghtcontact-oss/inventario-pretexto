@@ -709,7 +709,7 @@ function panel(html,montar,foco){
   montar&&montar();const f=foco?$(foco):$("capa").querySelector("input,select,textarea");if(f){f.focus();f.select&&f.select()}
 }
 document.addEventListener("keydown",e=>{if(e.key==="Escape")cerrar()});
-const err=e=>e&&e.code==="clave"?"La clave del equipo no es correcta.":e&&e.code==="sin_configurar"?"La hoja de Google todavía no está configurada.":e&&e.code==="invalid_argument"?"Ese registro ya no existe; recarga la app.":e&&e.code==="quota_exceeded"?"La libreta llegó a su límite de registros.":"No se pudo guardar. Revisa tu conexión y vuelve a intentar.";
+const err=e=>e&&e.code==="clave"?"La clave del equipo no es correcta.":e&&e.code==="no_permitido"?"Desde la app no se puede eliminar eso.":e&&e.code==="sin_configurar"?"La hoja de Google todavía no está configurada.":e&&e.code==="invalid_argument"?"Ese registro ya no existe; recarga la app.":e&&e.code==="quota_exceeded"?"La libreta llegó a su límite de registros.":"No se pudo guardar. Revisa tu conexión y vuelve a intentar.";
 async function registrarMov(p,tipo,delta,nota){await S.db.collection("movimientos").add({productoId:p.id,nombre:p.nombre,unidad:p.unidad,tipo,delta,costo:ppb(p)>0?r2(Math.abs(delta)*ppb(p)):null,nota:nota||"",autor:S.uid||null,ts:Date.now()})}
 const selDiasHTML=(sel,id)=>`<div class="selDias" id="${id}">${DIAS.map(([c,l])=>CERRADO.includes(c)?`<button type="button" disabled class="cerr" title="Cerrado">${l}</button>`:`<button type="button" data-d="${c}" aria-pressed="${(sel||[]).includes(c)}">${l}</button>`).join("")}</div>`;
 function montarDias(id,arr){CERRADO.forEach(c=>{const i=arr.indexOf(c);if(i>=0)arr.splice(i,1)});$(id).querySelectorAll("button[data-d]").forEach(b=>b.onclick=()=>{const d=b.dataset.d;const i=arr.indexOf(d);i>=0?arr.splice(i,1):arr.push(d);b.setAttribute("aria-pressed",arr.includes(d))})}
@@ -762,14 +762,14 @@ function pProd(id,foco){
     <span class="nota" id="pDiasNota">${dias.length?(p.diasSugeridos?"Días sugeridos; cámbialos si tu proveedor entrega otros días.":""):(prov(p.proveedorId)?.dias?.length?`Sin días propios: usa los de ${esc(prov(p.proveedorId).nombre)}.`:"Elige los días en que conviene pedirlo.")}</span></fieldset>
    ${hist.length?`<div><div class="nota">Últimos movimientos</div><ul class="hist">${hist.map(m=>`<li>${new Date(m.ts).toLocaleDateString("es-MX",{day:"numeric",month:"short"})} · ${esc(m.tipo)} <span class="num">${m.delta>0?"+":""}${fmt(m.delta)} ${esc(m.unidad||"")}</span>${m.autor?" · "+esc(S.nombres[m.autor]||"alguien del equipo"):""}</li>`).join("")}</ul></div>`:""}
    <div class="err" id="pE"></div>
-   <div class="pie"><div>${nuevo?"":`<button class="btn rojo" id="pDel">Eliminar</button>`}</div><div style="display:flex;gap:8px"><button class="btn claro" id="pX">Cancelar</button><button class="btn" id="pOk">${nuevo?"Agregar":"Guardar"}</button></div></div>`,()=>{
+   <div class="pie"><div>${nuevo?"":`<span class="nota">Para quitar un producto, pídeselo a quien administra la hoja.</span>`}</div><div style="display:flex;gap:8px"><button class="btn claro" id="pX">Cancelar</button><button class="btn" id="pOk">${nuevo?"Agregar":"Guardar"}</button></div></div>`,()=>{
     const ref=()=>{const u=$("pUni").value,pz=$("pPres").value.trim(),c=Number($("pCont").value),pr=Number($("pPrecio").value);
       $("capa").querySelectorAll(".lU").forEach(x=>x.textContent=u);$("lP").textContent=pz||u;
       $("pPor").textContent=pz&&c>0&&pr>0?`${pesos(r2(pr/c))} por ${u}`:pr>0&&!pz?`${pesos(pr)} por ${u}`:"—"};
     ["pUni","pPres","pCont","pPrecio"].forEach(i=>$(i).addEventListener("input",ref));ref();
     montarDias("pDias",dias);
     $("pX").onclick=cerrar;
-    if(!nuevo)$("pDel").onclick=async()=>{if(!borrar){borrar=true;$("pDel").textContent="¿Seguro? Eliminar";return}
+    if(false)$("pDel").onclick=async()=>{if(!borrar){borrar=true;$("pDel").textContent="¿Seguro? Eliminar";return}
       try{await S.db.doc("productos/"+id).delete();cerrar();aviso("Eliminado")}catch(e){$("pE").textContent=err(e)}};
     $("pOk").onclick=async()=>{const nombre=$("pNom").value.trim();if(!nombre){$("pE").textContent="Escribe el nombre del producto.";return}
       const val=x=>$(x).value===""?null:Number($(x).value);
@@ -798,9 +798,9 @@ function pProv(id){
    <div class="campo"><label for="vEnt">Tarda en entregar (días)</label><input id="vEnt" type="number" inputmode="numeric" min="0" max="14" value="${v.entrega??""}"></div></div>
    <div class="campo"><label for="vNota">Nota</label><input id="vNota" value="${esc(v.nota)}" placeholder="Ej. pedido mínimo 2 galones"></div>
    <div class="err" id="vE"></div>
-   <div class="pie"><div>${nuevo?"":`<button class="btn rojo" id="vDel">Eliminar</button>`}</div><div style="display:flex;gap:8px"><button class="btn claro" id="vX">Cancelar</button><button class="btn" id="vOk">${nuevo?"Agregar":"Guardar"}</button></div></div>`,()=>{
+   <div class="pie"><div></div><div style="display:flex;gap:8px"><button class="btn claro" id="vX">Cancelar</button><button class="btn" id="vOk">${nuevo?"Agregar":"Guardar"}</button></div></div>`,()=>{
     montarDias("vDias",dias);$("vX").onclick=cerrar;
-    if(!nuevo)$("vDel").onclick=async()=>{if(!borrar){borrar=true;$("vDel").textContent="¿Seguro? Eliminar";return}
+    if(false)$("vDel").onclick=async()=>{if(!borrar){borrar=true;$("vDel").textContent="¿Seguro? Eliminar";return}
       try{await S.db.doc("proveedores/"+id).delete();cerrar();aviso("Proveedor eliminado")}catch(e){$("vE").textContent=err(e)}};
     $("vOk").onclick=async()=>{const nombre=$("vNom").value.trim();if(!nombre){$("vE").textContent="Escribe el nombre del proveedor.";return}
       const tel=$("vTel").value.replace(/\D/g,"");if(tel&&tel.length!==10&&tel.length!==12){$("vE").textContent="El número debe tener 10 dígitos (sin el +52).";return}

@@ -11,6 +11,8 @@
  */
 
 const ZONA = "America/Mexico_City";
+// Lo que no se puede eliminar desde la app (solo directo en la hoja, por el dueño)
+const NO_BORRAR = ["productos", "proveedores", "ventas", "config", "reportes"];
 
 const HOJAS = {
   productos:     { nombre: "Productos",     cols: ["id","nombre","categoria","unidad","stock","minimo","precio","compraUnidad","contenido","proveedorId","diasPedido","diasSugeridos","contadoEn","actualizado"] },
@@ -33,6 +35,7 @@ function onOpen() {
   SpreadsheetApp.getUi().createMenu("Inventario")
     .addItem("1. Configurar (primera vez)", "configurar")
     .addItem("Rehacer pestaña Análisis", "crearAnalisis")
+    .addItem("Recuperar productos de la barra borrados", "restaurarProductos")
     .addItem("Cambiar clave del equipo", "cambiarClave")
     .addToUi();
 }
@@ -49,7 +52,6 @@ function configurar() {
         compraUnidad: "", contenido: null, proveedorId: "", diasPedido: p[4], diasSugeridos: true, actualizado: ahora }, "set", "");
     });
   }
-  crearResumenes();
   crearAnalisis();
   ["Hoja 1", "Sheet1"].forEach(function (n) { const h = SpreadsheetApp.getActive().getSheetByName(n); if (h && h.getLastRow() === 0) SpreadsheetApp.getActive().deleteSheet(h); });
   const props = PropertiesService.getScriptProperties();
@@ -62,6 +64,17 @@ function configurar() {
     props.setProperty("CLAVE", r.getResponseText().trim());
   }
   ui.alert("Listo. La hoja ya tiene sus pestañas, los productos de la barra y la pestaña Análisis.");
+}
+
+function restaurarProductos() {
+  const hay = filas("productos").map(function (p) { return p.id; });
+  const ahora = Date.now();
+  const faltan = PRODUCTOS_INICIALES.filter(function (p) { return hay.indexOf(p[0]) < 0; });
+  faltan.forEach(function (p) {
+    guardar("productos", p[0], { nombre: p[1], categoria: p[2], unidad: p[3], stock: null, minimo: null, precio: null,
+      compraUnidad: "", contenido: null, proveedorId: "", diasPedido: p[4], diasSugeridos: true, actualizado: ahora }, "set", "");
+  });
+  SpreadsheetApp.getUi().alert(faltan.length ? "Se recuperaron: " + faltan.map(function (p) { return p[1]; }).join(", ") : "No faltaba ningún producto de la barra.");
 }
 
 function cambiarClave() {
@@ -85,7 +98,7 @@ function crearResumenes() {
   resumenes.forEach(function (r) {
     let sh = ss.getSheetByName(r[0]);
     if (!sh) sh = ss.insertSheet(r[0]);
-    sh.getRange("A1").setFormula(r[1]);
+    sh.getRange("A1").setFormula("=IFERROR(" + r[1].slice(1) + ",\"Sin datos todavía\")");
     sh.setFrozenRows(1);
   });
 }
@@ -108,7 +121,10 @@ function doPost(e) {
     if (b.accion === "leer") return salida({ ok: true, datos: leerTodo(Number(b.desde) || 0), hoja: SpreadsheetApp.getActive().getUrl() });
     if (b.accion === "reporte") return salida({ ok: true, doc: crearReporte(String(b.desde), String(b.hasta), b.autor || "") });
     if (b.accion === "guardar") return salida({ ok: true, doc: guardar(b.col, b.id, b.data || {}, b.modo, b.autor || "") });
-    if (b.accion === "borrar") { borrar(b.col, b.id); return salida({ ok: true }); }
+    if (b.accion === "borrar") {
+      if (NO_BORRAR.indexOf(b.col) >= 0) return salida({ ok: false, code: "no_permitido", error: "Desde la app no se pueden eliminar productos ni proveedores. Se quitan directo en la hoja." });
+      borrar(b.col, b.id); return salida({ ok: true });
+    }
     return salida({ ok: false, code: "invalid_argument", error: "Acción desconocida" });
   } catch (err) {
     const msg = String(err && err.message || err);
@@ -246,6 +262,7 @@ function completarMovimiento(m, autor) {
 
 /* ---------- pestaña Análisis: tablas y gráficas que se actualizan solas ---------- */
 function crearAnalisis() {
+  crearResumenes();
   const ss = SpreadsheetApp.getActive();
   let sh = ss.getSheetByName("Análisis");
   if (!sh) sh = ss.insertSheet("Análisis", 0);
