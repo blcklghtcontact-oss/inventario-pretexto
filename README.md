@@ -20,8 +20,14 @@ Pestañas que crea la hoja:
 | Productos | El inventario actual |
 | Movimientos | Cada entrada, uso, merma y conteo (una fila por registro) |
 | Ventas | La venta de caja de cada día |
+| Reportes | Lista de reportes creados en Google Docs |
 | Proveedores, Recordatorios, Config | Lo demás de la app |
 | Consumo diario, Consumo por producto, Compras por día, Consumo por día de la semana | Resúmenes que se calculan solos |
+
+## Reportes y Obsidian
+
+- En **Gráficas → Reportes en Google Docs** se crea un documento con el dinero, el consumo por producto, lo de cada día y lo que llegó. Los reportes quedan listados ahí para abrirlos después, y el botón **Ver la hoja de datos** abre la hoja completa.
+- Cada noche se copia el día a la bóveda de Obsidian (Segundo Cerebro), en `wiki/cafeteria-pretexto/inventario/`.
 
 ## Instalación (una sola vez, unos 10 minutos)
 
@@ -33,7 +39,7 @@ Pestañas que crea la hoja:
    - Quién tiene acceso: **Cualquier usuario**
 
    Copia la dirección que termina en `/exec`.
-5. **Conecta la app.** En este repositorio, abre `config.js`, pega la dirección en `SCRIPT_URL` y guarda (o mándasela a Claude para que lo haga).
+5. **Conecta la app.** Abre la app en el teléfono y pega la dirección donde dice “Conectar la base de datos”. Para que ya no la pida en ningún teléfono, pégala también en `config.js` (`SCRIPT_URL`).
 
 Listo. Abre la app, escribe tu nombre y la clave del equipo.
 

@@ -18,10 +18,11 @@ const HOJAS = {
   ventas:        { nombre: "Ventas",        cols: ["id","fecha","dia_semana","monto","nota","autor","actualizado"] },
   proveedores:   { nombre: "Proveedores",   cols: ["id","nombre","contacto","telefono","dias","hora","entrega","nota","actualizado"] },
   recordatorios: { nombre: "Recordatorios", cols: ["id","texto","fecha","hora","repetir","hecho","autor","ts"] },
-  config:        { nombre: "Config",        cols: ["id","datos"] }
+  config:        { nombre: "Config",        cols: ["id","datos"] },
+  reportes:      { nombre: "Reportes",      cols: ["id","titulo","desde","hasta","url","autor","ts"] }
 };
 // Columnas que se guardan como texto (para que la hoja no las convierta en fechas u horas)
-const TEXTO = ["id","fecha","hora","telefono","dias","diasPedido","dia_semana","productoId","proveedorId","datos"];
+const TEXTO = ["desde","hasta","id","fecha","hora","telefono","dias","diasPedido","dia_semana","productoId","proveedorId","datos"];
 const JSON_COLS = ["diasPedido","dias","datos"];
 const NUM = ["stock","minimo","precio","contenido","contadoEn","actualizado","entrega","ts","delta","cantidad","costo","monto"];
 const BOOL = ["diasSugeridos","hecho"];
@@ -101,7 +102,8 @@ function doPost(e) {
   const lock = LockService.getScriptLock();
   lock.waitLock(25000);
   try {
-    if (b.accion === "leer") return salida({ ok: true, datos: leerTodo(Number(b.desde) || 0) });
+    if (b.accion === "leer") return salida({ ok: true, datos: leerTodo(Number(b.desde) || 0), hoja: SpreadsheetApp.getActive().getUrl() });
+    if (b.accion === "reporte") return salida({ ok: true, doc: crearReporte(String(b.desde), String(b.hasta), b.autor || "") });
     if (b.accion === "guardar") return salida({ ok: true, doc: guardar(b.col, b.id, b.data || {}, b.modo, b.autor || "") });
     if (b.accion === "borrar") { borrar(b.col, b.id); return salida({ ok: true }); }
     return salida({ ok: false, code: "invalid_argument", error: "Acción desconocida" });
@@ -144,7 +146,7 @@ function leerValor(k, v) {
     if (k === "hora") return Utilities.formatDate(v, ZONA, "HH:mm");
     return Utilities.formatDate(v, ZONA, "yyyy-MM-dd");
   }
-  if (JSON_COLS.indexOf(k) >= 0 && typeof v === "string") { try { return JSON.parse(v); } catch (x) { return v; } }
+  if (typeof v === "string" && (JSON_COLS.indexOf(k) >= 0 || /^[\[{]/.test(v))) { try { return JSON.parse(v); } catch (x) { return v; } }
   if (NUM.indexOf(k) >= 0) { const n = Number(v); return isNaN(n) ? null : n; }
   if (BOOL.indexOf(k) >= 0) return v === true || v === "TRUE" || v === "true";
   return k === "id" ? String(v) : v;
@@ -238,6 +240,77 @@ function completarMovimiento(m, autor) {
     }
   }
 }
+
+/* ---------- reportes en Google Docs ---------- */
+function crearReporte(desde, hasta, autor) {
+  const movs = filas("movimientos").filter(function (m) { return m.fecha >= desde && m.fecha <= hasta; });
+  const ventas = filas("ventas").filter(function (v) { return v.fecha >= desde && v.fecha <= hasta; });
+  const suma = function (lista, f) { return lista.reduce(function (a, x) { return a + (Number(f(x)) || 0); }, 0); };
+  const dinero = function (v) { return "$" + (Math.round(v * 100) / 100).toLocaleString("es-MX"); };
+  const usados = movs.filter(function (m) { return m.tipo === "salida" || m.tipo === "merma"; });
+  const compras = movs.filter(function (m) { return m.tipo === "entrada"; });
+  const vendido = suma(ventas, function (v) { return v.monto; });
+  const insumos = suma(usados, function (m) { return m.costo; });
+  const comprado = suma(compras, function (m) { return m.costo; });
+  const merma = suma(usados.filter(function (m) { return m.tipo === "merma"; }), function (m) { return m.costo; });
+
+  const titulo = "Reporte de inventario Café Pretexto · " + desde + " a " + hasta;
+  const doc = DocumentApp.create(titulo);
+  const body = doc.getBody();
+  body.appendParagraph(titulo).setHeading(DocumentApp.ParagraphHeading.TITLE);
+  body.appendParagraph("Generado el " + Utilities.formatDate(new Date(), ZONA, "yyyy-MM-dd HH:mm") + (autor ? " por " + autor : "") + ". El lunes no se abre.").setItalic(true);
+
+  body.appendParagraph("Dinero").setHeading(DocumentApp.ParagraphHeading.HEADING1);
+  body.appendTable([
+    ["Concepto", "Monto"],
+    ["Vendido (caja)", dinero(vendido)],
+    ["Compras (lo que llegó)", dinero(comprado)],
+    ["Insumos usados", dinero(insumos)],
+    ["Merma (se tiró)", dinero(merma)],
+    ["Vendido − insumos", dinero(vendido - insumos)],
+    ["Insumos / venta", vendido > 0 ? Math.round(insumos / vendido * 1000) / 10 + "%" : "—"]
+  ]);
+
+  body.appendParagraph("Consumo por producto").setHeading(DocumentApp.ParagraphHeading.HEADING1);
+  const porProd = {};
+  usados.forEach(function (m) { const k = m.nombre + "|" + m.unidad; porProd[k] = porProd[k] || { n: m.nombre, u: m.unidad, c: 0, d: 0 }; porProd[k].c += Number(m.cantidad) || 0; porProd[k].d += Number(m.costo) || 0; });
+  const dias = {};
+  movs.concat(ventas).forEach(function (x) { if (x.dia_semana !== "lunes") dias[x.fecha] = 1; });
+  const nd = Math.max(1, Object.keys(dias).length);
+  const filasProd = Object.keys(porProd).map(function (k) { return porProd[k]; }).sort(function (a, b) { return b.d - a.d || b.c - a.c; });
+  if (filasProd.length) {
+    body.appendTable([["Producto", "Usado", "Por día", "Por semana (mar–dom)", "Costo"]].concat(filasProd.map(function (p) {
+      return [p.n, red(p.c) + " " + p.u, red(p.c / nd) + " " + p.u, red(p.c / nd * 6) + " " + p.u, p.d ? dinero(p.d) : "—"];
+    })));
+  } else body.appendParagraph("No se anotó consumo en este periodo.");
+
+  body.appendParagraph("Por día").setHeading(DocumentApp.ParagraphHeading.HEADING1);
+  const porDia = {};
+  ventas.forEach(function (v) { porDia[v.fecha] = porDia[v.fecha] || { v: 0, i: 0, c: 0, ds: v.dia_semana }; porDia[v.fecha].v += Number(v.monto) || 0; });
+  movs.forEach(function (m) { porDia[m.fecha] = porDia[m.fecha] || { v: 0, i: 0, c: 0, ds: m.dia_semana };
+    if (m.tipo === "entrada") porDia[m.fecha].c += Number(m.costo) || 0;
+    if (m.tipo === "salida" || m.tipo === "merma") porDia[m.fecha].i += Number(m.costo) || 0; });
+  const fechas = Object.keys(porDia).sort();
+  if (fechas.length) {
+    body.appendTable([["Fecha", "Día", "Vendido", "Insumos usados", "Compras"]].concat(fechas.map(function (f) {
+      const d = porDia[f]; return [f, d.ds || "", dinero(d.v), dinero(d.i), dinero(d.c)];
+    })));
+  } else body.appendParagraph("Sin registros.");
+
+  body.appendParagraph("Lo que llegó").setHeading(DocumentApp.ParagraphHeading.HEADING1);
+  if (compras.length) body.appendTable([["Fecha", "Producto", "Cantidad", "Costo", "Anotó"]].concat(compras.map(function (m) {
+    return [m.fecha, m.nombre, red(m.cantidad) + " " + m.unidad, m.costo ? dinero(m.costo) : "—", m.autor || ""];
+  })));
+  else body.appendParagraph("No se anotaron entradas.");
+  doc.saveAndClose();
+
+  const id = "r" + Date.now();
+  const r = { titulo: titulo, desde: desde, hasta: hasta, url: doc.getUrl(), autor: autor || "", ts: Date.now() };
+  guardar("reportes", id, r, "set", autor);
+  r.id = id;
+  return r;
+}
+function red(v) { return Math.round((Number(v) || 0) * 100) / 100; }
 
 /* Productos de la barra (de inventario.md del recetario). Solo se cargan la primera vez. */
 const PRODUCTOS_INICIALES = [
